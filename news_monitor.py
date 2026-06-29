@@ -134,7 +134,10 @@ def extract_html(text: str) -> str:
     text = text.strip()
     text = re.sub(r"^```(?:html)?\s*\n?", "", text)
     text = re.sub(r"\n?```\s*$", "", text)
-    return text.strip()
+    text = text.strip()
+    # Remove any incomplete trailing tag caused by token truncation
+    text = re.sub(r"<[^>]*$", "", text).rstrip()
+    return text
 
 
 def wrap_email_html(body: str) -> str:
@@ -257,7 +260,7 @@ def generate_daily_report(news: dict[str, list[dict]]) -> str:
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     resp = client.messages.create(
         model=MODEL,
-        max_tokens=4096,
+        max_tokens=8192,
         messages=[{"role": "user", "content": prompt}],
     )
     html_body = extract_html(resp.content[0].text)
