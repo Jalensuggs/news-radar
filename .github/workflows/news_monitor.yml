@@ -58,5 +58,11 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
         run: |
-          echo "▶ Mode: ${{ steps.mode.outputs.value }}"
+          EXPIRY="2026-07-19"
+          TODAY=$(date -u +%Y-%m-%d)
+          if [[ "$TODAY" > "$EXPIRY" ]]; then
+            echo "✅ 系统已于 $EXPIRY 自动到期（共运行20天），本次跳过发送。"
+            exit 0
+          fi
+          echo "▶ Mode: ${{ steps.mode.outputs.value }} | 运行至 $EXPIRY"
           python news_monitor.py ${{ steps.mode.outputs.value }}
